@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Database Layer (PostgreSQL with TimescaleDB)
+  timescaledb:
+    image: timescale/timescaledb:latest-pg14
+    environment:
+      POSTGRES_USER: voltgrid_admin
+      POSTGRES_PASSWORD: secure_password
+      POSTGRES_DB: voltgrid_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  # Caching Layer
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # MQTT Broker (Local Mock for AWS IoT Core / GCP)
+  mqtt_broker:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./iot-service/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  # Node.js IoT / OCPP Service
+  iot-service:
+    build:
+      context: ./iot-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mqtt_broker
+    environment:
+      - MQTT_URL=mqtt://mqtt_broker:1883
+      - REDIS_URL=redis://redis:6379
+
+  # Python FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - timescaledb
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://voltgrid_admin:secure_password@timescaledb:5432/voltgrid_db
+      - REDIS_URL=redis://redis:6379
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  timescaledb_data:
+  redis_data:
