@@ -281,3 +281,5 @@ def sync_live_tariffs():
     INDIAN_STATES_TARIFFS = updated_tariffs
     
     return {"status": "success", "message": "Scraper synced 20 states from official SERC sources. Applied +₹1.50/kWh update.", "states": INDIAN_STATES_TARIFFS}
+
+# API Documentation updated for VoltGrid SaaS Architecture
