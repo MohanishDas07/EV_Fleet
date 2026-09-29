@@ -11,7 +11,16 @@ from pydantic import BaseModel
 app = FastAPI(title="VoltGrid API", description="AI Energy Orchestration - Phase 5 Simulator")
 
 # Connect to TimescaleDB
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://voltgrid_admin:secure_password@timescaledb:5432/voltgrid_db")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    db_user = os.getenv("POSTGRES_USER", "voltgrid_admin")
+    db_pass = os.getenv("POSTGRES_PASSWORD", "")
+    db_host = os.getenv("POSTGRES_HOST", "timescaledb")
+    db_port = os.getenv("POSTGRES_PORT", "5432")
+    db_name = os.getenv("POSTGRES_DB", "voltgrid_db")
+    auth = f"{db_user}:{db_pass}@" if db_pass else f"{db_user}@"
+    DATABASE_URL = f"postgresql://{auth}{db_host}:{db_port}/{db_name}"
+
 engine = create_engine(DATABASE_URL)
 
 # Add CORS so Next.js can fetch from it

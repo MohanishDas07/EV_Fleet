@@ -45,11 +45,15 @@ This entire microservices architecture is containerized and optimized to run ins
    git clone https://github.com/MohanishDas07/EV_Fleet.git
    cd EV_Fleet
    ```
-2. Start the entire server stack in the background:
+2. Configure environment variables (copy example template):
+   ```bash
+   cp .env.example .env
+   ```
+3. Start the entire server stack in the background:
    ```bash
    docker-compose up -d --build
    ```
-3. Open your browser and navigate to:
+4. Open your browser and navigate to:
    👉 **http://localhost:3000**
 
 ### Simulating Physical Hardware
