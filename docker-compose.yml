@@ -55,6 +55,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-voltgrid_admin}:${POSTGRES_PASSWORD}@timescaledb:5432/${POSTGRES_DB:-voltgrid_db}
       - REDIS_URL=redis://redis:6379
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
 
   # Next.js Frontend
   frontend:
